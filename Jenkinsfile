@@ -2,11 +2,11 @@ pipeline {
     agent any
     
     environment {
-        GIT_REPO = 'https://github.com/YOUR_USERNAME/YOUR_REPO.git'
-        GITHUB_REPO = 'YOUR_USERNAME/YOUR_REPO'
+        GIT_REPO = 'https://github.com/alinasser4/devops.git'
+        GITHUB_REPO = 'alinasser4/devops'
         DEPLOY_DIR = "${WORKSPACE}/deploy"
         COMPOSE_FILE = "${WORKSPACE}/docker-compose.test.yml"
-        EMAIL_RECIPIENT = 'your-email@example.com'
+        EMAIL_RECIPIENT = 'alinasser1132002@gmail.com'
     }
     
     stages {
@@ -79,17 +79,14 @@ pipeline {
                 }
             }
         }
-        
-        stage('Cleanup') {
-            always {
-                script {
-                    sh './scripts/cleanup.sh'
-                }
-            }
-        }
     }
     
     post {
+        always {
+            script {
+                sh './scripts/cleanup.sh'
+            }
+        }
         success {
             emailext(
                 subject: "CI/CD Pipeline SUCCESS: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
@@ -122,4 +119,3 @@ pipeline {
         }
     }
 }
-
