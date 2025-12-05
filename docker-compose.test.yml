@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: test_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - test_network
+
+  php-apache:
+    build:
+      context: ./php-app
+      dockerfile: Dockerfile
+    container_name: test_php_apache
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_NAME: testdb
+      DB_USER: testuser
+      DB_PASS: testpass
+    ports:
+      - "8080:80"
+    volumes:
+      - ./deploy:/var/www/html
+    networks:
+      - test_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/index.php"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nodejs:
+    image: node:18-alpine
+    container_name: test_nodejs
+    depends_on:
+      - php-apache
+      - mysql
+    volumes:
+      - ./tests:/app
+      - ./deploy:/var/www/html
+    working_dir: /app
+    command: tail -f /dev/null
+    networks:
+      - test_network
+
+volumes:
+  mysql_data:
+
+networks:
+  test_network:
+    driver: bridge
+
