@@ -25,11 +25,11 @@ mkdir -p "$DEPLOY_DIR"
 
 # Clean up any existing containers
 echo -e "${YELLOW}Cleaning up existing containers...${NC}"
-docker-compose -f "$COMPOSE_FILE" down -v || true
+docker compose -f "$COMPOSE_FILE" down -v || true
 
 # Start the test cluster
 echo -e "${YELLOW}Starting test cluster with docker-compose...${NC}"
-docker-compose -f "$COMPOSE_FILE" up -d
+docker compose -f "$COMPOSE_FILE" up -d
 
 # Wait for services to be healthy
 echo -e "${YELLOW}Waiting for services to be healthy...${NC}"
@@ -37,14 +37,13 @@ sleep 10
 
 # Check if containers are running
 echo -e "${YELLOW}Checking container status...${NC}"
-if docker-compose -f "$COMPOSE_FILE" ps | grep -q "Up"; then
+if docker compose -f "$COMPOSE_FILE" ps | grep -q "Up"; then
     echo -e "${GREEN}✓ Test cluster started successfully${NC}"
 else
     echo -e "${RED}✗ Failed to start test cluster${NC}"
-    docker-compose -f "$COMPOSE_FILE" logs
+    docker compose -f "$COMPOSE_FILE" logs
     exit 1
 fi
 
 echo -e "${GREEN}Build process completed successfully${NC}"
 echo "=========================================="
-
