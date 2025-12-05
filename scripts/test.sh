@@ -19,9 +19,19 @@ NC='\033[0m' # No Color
 COMPOSE_FILE="docker-compose.test.yml"
 API_URL="http://php-apache/api.php"
 
+# Detect docker compose command
+if command -v docker &> /dev/null && docker compose version &> /dev/null 2>&1; then
+    DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+else
+    echo -e "${RED}✗ Neither 'docker compose' nor 'docker-compose' is available${NC}"
+    exit 1
+fi
+
 # Run tests using Node.js container
 echo -e "${YELLOW}Running API tests...${NC}"
-docker compose -f "$COMPOSE_FILE" exec -T nodejs sh -c "cd /app && API_URL=$API_URL node test-api.js"
+$DOCKER_COMPOSE -f "$COMPOSE_FILE" exec -T nodejs sh -c "cd /app && API_URL=$API_URL node test-api.js"
 
 TEST_EXIT_CODE=$?
 
