@@ -1,4 +1,5 @@
 -- Initialize database with test data
+CREATE DATABASE IF NOT EXISTS testdb;
 USE testdb;
 
 CREATE TABLE IF NOT EXISTS messages (
@@ -9,4 +10,3 @@ CREATE TABLE IF NOT EXISTS messages (
 
 INSERT INTO messages (id, message) VALUES (1, 'Hello World') 
 ON DUPLICATE KEY UPDATE message = 'Hello World';
-
