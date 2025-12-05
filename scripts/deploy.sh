@@ -20,6 +20,16 @@ DEPLOY_DIR="./deploy"
 SOURCE_DIR="./php-app"
 COMPOSE_FILE="docker-compose.test.yml"
 
+# Detect docker compose command
+if command -v docker &> /dev/null && docker compose version &> /dev/null 2>&1; then
+    DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+else
+    echo -e "${RED}✗ Neither 'docker compose' nor 'docker-compose' is available${NC}"
+    exit 1
+fi
+
 # Check if deploy directory exists
 if [ ! -d "$DEPLOY_DIR" ]; then
     echo -e "${RED}✗ Deploy directory does not exist. Run build.sh first.${NC}"
@@ -39,7 +49,7 @@ chmod -R 755 "$DEPLOY_DIR"
 
 # Restart PHP container to pick up changes
 echo -e "${YELLOW}Restarting PHP container...${NC}"
-docker compose -f "$COMPOSE_FILE" restart php-apache || {
+$DOCKER_COMPOSE -f "$COMPOSE_FILE" restart php-apache || {
     echo -e "${RED}✗ Failed to restart PHP container${NC}"
     exit 1
 }
