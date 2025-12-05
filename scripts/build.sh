@@ -20,9 +20,9 @@ DEPLOY_DIR="./deploy"
 COMPOSE_FILE="docker-compose.test.yml"
 
 # Detect docker compose command
-if docker compose version &>/dev/null; then
+if command -v docker &> /dev/null && docker compose version &> /dev/null 2>&1; then
     DOCKER_COMPOSE="docker compose"
-elif docker-compose version &>/dev/null; then
+elif command -v docker-compose &> /dev/null; then
     DOCKER_COMPOSE="docker-compose"
 else
     echo -e "${RED}✗ Neither 'docker compose' nor 'docker-compose' is available${NC}"
@@ -39,11 +39,25 @@ $DOCKER_COMPOSE -f "$COMPOSE_FILE" down -v || true
 
 # Start the test cluster
 echo -e "${YELLOW}Starting test cluster with docker-compose...${NC}"
-$DOCKER_COMPOSE -f "$COMPOSE_FILE" up -d
+if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" up -d; then
+    echo -e "${RED}✗ Failed to start containers${NC}"
+    echo -e "${YELLOW}MySQL logs:${NC}"
+    $DOCKER_COMPOSE -f "$COMPOSE_FILE" logs mysql
+    exit 1
+fi
 
 # Wait for services to be healthy
 echo -e "${YELLOW}Waiting for services to be healthy...${NC}"
-sleep 10
+sleep 15
+
+# Check MySQL container status
+echo -e "${YELLOW}Checking MySQL container status...${NC}"
+if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" ps mysql | grep -q "Up"; then
+    echo -e "${RED}✗ MySQL container failed to start${NC}"
+    echo -e "${YELLOW}MySQL logs:${NC}"
+    $DOCKER_COMPOSE -f "$COMPOSE_FILE" logs mysql
+    exit 1
+fi
 
 # Check if containers are running
 echo -e "${YELLOW}Checking container status...${NC}"
@@ -51,6 +65,7 @@ if $DOCKER_COMPOSE -f "$COMPOSE_FILE" ps | grep -q "Up"; then
     echo -e "${GREEN}✓ Test cluster started successfully${NC}"
 else
     echo -e "${RED}✗ Failed to start test cluster${NC}"
+    echo -e "${YELLOW}Container logs:${NC}"
     $DOCKER_COMPOSE -f "$COMPOSE_FILE" logs
     exit 1
 fi
