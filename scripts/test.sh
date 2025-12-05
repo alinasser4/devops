@@ -21,7 +21,7 @@ API_URL="http://php-apache/api.php"
 
 # Run tests using Node.js container
 echo -e "${YELLOW}Running API tests...${NC}"
-docker-compose -f "$COMPOSE_FILE" exec -T nodejs sh -c "cd /app && API_URL=$API_URL node test-api.js"
+docker compose -f "$COMPOSE_FILE" exec -T nodejs sh -c "cd /app && API_URL=$API_URL node test-api.js"
 
 TEST_EXIT_CODE=$?
 
@@ -34,4 +34,3 @@ else
     echo "=========================================="
     exit 1
 fi
-
