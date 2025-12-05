@@ -20,7 +20,7 @@ DEPLOY_DIR="./deploy"
 
 # Stop and remove containers
 echo -e "${YELLOW}Stopping and removing containers...${NC}"
-docker-compose -f "$COMPOSE_FILE" down -v
+docker compose -f "$COMPOSE_FILE" down -v
 
 # Clean up deploy directory (optional)
 # Uncomment the next line if you want to remove deploy directory after cleanup
@@ -28,4 +28,3 @@ docker-compose -f "$COMPOSE_FILE" down -v
 
 echo -e "${GREEN}✓ Cleanup completed${NC}"
 echo "=========================================="
-
