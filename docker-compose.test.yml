@@ -36,7 +36,7 @@ services:
       DB_USER: testuser
       DB_PASS: testpass
     ports:
-      - "8080:80"
+      - "8081:80"
     volumes:
       - ./deploy:/var/www/html
     networks:
@@ -67,4 +67,5 @@ volumes:
 networks:
   test_network:
     driver: bridge
+
 
