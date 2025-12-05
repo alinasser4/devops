@@ -39,7 +39,7 @@ chmod -R 755 "$DEPLOY_DIR"
 
 # Restart PHP container to pick up changes
 echo -e "${YELLOW}Restarting PHP container...${NC}"
-docker-compose -f "$COMPOSE_FILE" restart php-apache || {
+docker compose -f "$COMPOSE_FILE" restart php-apache || {
     echo -e "${RED}✗ Failed to restart PHP container${NC}"
     exit 1
 }
@@ -49,4 +49,3 @@ sleep 5
 
 echo -e "${GREEN}✓ Deployment completed successfully${NC}"
 echo "=========================================="
-
