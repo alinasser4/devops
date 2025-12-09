@@ -1,0 +1,59 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: test-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpassword
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - testnet
+
+  php:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: test-php
+    volumes:
+      - ./app:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/index.php"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    networks:
+      - testnet
+
+  nodejs:
+    image: node:20-alpine
+    container_name: test-nodejs
+    working_dir: /tests
+    volumes:
+      - ./tests:/tests
+    depends_on:
+      php:
+        condition: service_healthy
+    networks:
+      - testnet
+    command: sh -c "sleep 10 && npm install && sleep 5 && npm test"
+
+networks:
+  testnet:
+    driver: bridge
