@@ -211,9 +211,35 @@ pipeline {
         }
         success {
             echo '=== BUILD SUCCESSFUL - All tests passed! ==='
+            mail to: 'alinasser1132002@gmail.com',
+                 subject: "SUCCESS: Jenkins Build #${env.BUILD_NUMBER}",
+                 body: """Build succeeded!
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+PR: ${env.PR_NUMBER ?: 'N/A'}
+Branch: ${env.PR_BRANCH ?: 'main'}
+
+All tests passed. PR has been auto-merged.
+
+View build: ${env.BUILD_URL}
+"""
         }
         failure {
             echo '=== BUILD FAILED - Check logs for details ==='
+            mail to: 'alinasser1132002@gmail.com',
+                 subject: "FAILED: Jenkins Build #${env.BUILD_NUMBER}",
+                 body: """Build failed!
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+PR: ${env.PR_NUMBER ?: 'N/A'}
+Branch: ${env.PR_BRANCH ?: 'main'}
+
+Please check the logs for details.
+
+View build: ${env.BUILD_URL}
+"""
         }
     }
 }
