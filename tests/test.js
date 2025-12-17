@@ -63,7 +63,7 @@ async function test2_CheckAPIHelloWorld() {
         const response = await retryRequest(`${PHP_URL}/api.php`);
         const data = response.data;
         
-        if (data.status === 'success' && data.message === 'Hello World') {
+        if (data.status === 'success' && data.message === 'Hello World3283289832') {
             console.log('✓ Test 2 PASSED: API returns "Hello World" correctly');
             passedTests++;
             return true;
